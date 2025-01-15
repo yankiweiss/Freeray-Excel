@@ -13,7 +13,17 @@
 
 <body>
 
-    <h1 class="text-center">Freerey Software</h1>
+    <br><br>
+
+    <img style="width: 250px; margin: auto; display: block;" src="./images/Screenshot 2024-12-05 155457.png">
+
+
+    <div id="loadingIndicator" style="display:none; text-align:center;">
+        <p>Loading...</p>
+        <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading" width="50" />
+    </div>
+
+   
 
     <div style="display: inline-block; width: 70%; vertical-align: top;">
         <!-- File input and table 1 -->
@@ -29,6 +39,10 @@
         <input type="file" id="upload2" />
         <table id="excelData2" style="width: 100%;"></table>
     </div>
+
+   
+
+
 
     <button id="save" class="btn btn-primary">Save Updated File</button>
 
@@ -211,25 +225,32 @@ function renderTable(tableId, data) {
 
 
         document.getElementById('upload2').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
+    const file = e.target.files[0];
+    const reader = new FileReader();
 
-            reader.onload = function (event) {
-                const data = event.target.result;
-                const workbook = XLSX.read(data, { type: 'binary' });
-                const sheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[sheetName];
-                table2Data = XLSX.utils.sheet_to_json(sheet); // Store data in table2Data
+    // Show the loading indicator before starting the file processing
+    document.getElementById('loadingIndicator').style.display = 'block';
 
-                // Render table 2 (with or without 'Paid' column)
-                renderTable('excelData2', table2Data);
+    reader.onload = function (event) {
+        const data = event.target.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        table2Data = XLSX.utils.sheet_to_json(sheet); // Store data in table2Data
 
-                // After rendering, update 'paid' values where missing
-                updatePaidAmounts();
-            };
+        // Render table 2 (with or without 'Paid' column)
+        renderTable('excelData2', table2Data);
 
-            reader.readAsBinaryString(file);
-        });
+        // After rendering, update 'paid' values where missing
+        updatePaidAmounts();
+
+        // Hide the loading indicator once the process is complete
+        document.getElementById('loadingIndicator').style.display = 'none';
+    };
+
+    reader.readAsBinaryString(file);
+});
+
 
 
         document.getElementById('datePicker').addEventListener('change', function (e) {
