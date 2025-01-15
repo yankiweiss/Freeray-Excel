@@ -58,24 +58,49 @@
 
         // below updates the Paid column on the second table with the paid amount from the first talbe 
         function updatePaidAmounts() {
-            table2Data.forEach(row2 => {
-                let matchFound = false;
-                table1Data.forEach(row1 => {
-                    if (row1.Name?.toLowerCase().trim() === row2.Name?.toLowerCase().trim()
-                        && row1["Date of Service"] === row2["Date of Service"]) {
-                        row2.Paid = row1.Paid;
-                        matchFound = true;
-                    }
-                });
-                if (!matchFound) {
-                    row2.Paid = "Not Found";
-                }
-            });
-
-            // calling the Render Table function to Re-Populate the Second Table
-
-            renderTable('excelData2', table2Data);
+    // Check for rows in table2Data that match rows in table1Data
+    table2Data.forEach(row2 => {
+        let matchFound = false;
+        table1Data.forEach(row1 => {
+            if (row1.Name?.toLowerCase().trim() === row2.Name?.toLowerCase().trim()
+                && row1["Date of Service"] === row2["Date of Service"]) {
+                row2.Paid = row1.Paid; // Update the Paid column in table2Data
+                row2["Not Found in Roaster"] = ''; // Clear the "Not Found" message if matched
+                matchFound = true;
+            }
+        });
+        if (!matchFound) {
+            row2.Paid = "Not Found";
+            row2["Remarks"] = 'Not in Table1'; // Optional: Add remarks for rows not found in table1Data
         }
+    });
+
+    // Now check for rows in table1Data that do not exist in table2Data
+    table1Data.forEach(row1 => {
+        let matchFound = false;
+        table2Data.forEach(row2 => {
+            if (row1.Name?.toLowerCase().trim() === row2.Name?.toLowerCase().trim()
+                && row1["Date of Service"] === row2["Date of Service"]) {
+                matchFound = true;
+            }
+        });
+        // If no match is found, add the row from table1Data to table2Data
+        if (!matchFound) {
+            // Add the row from table1Data to table2Data
+            let newRow = { ...row1 }; // Clone the row to avoid modifying the original data
+            newRow["Not Found in Roaster"] = 'Not Found in Roaster'; // Add the Not Found message
+            newRow["Remarks"] = 'Not in Roaster'; // Add an additional Remarks/Status column
+            table2Data.push(newRow); // Add the row to table2Data
+        }
+    });
+
+    // Re-render table2Data with the updated rows
+    renderTable('excelData2', table2Data);
+}
+
+
+
+
 
 
         // below function is formating dates that comes in from Excel Seriel Format to dd/mm/yyyy format
