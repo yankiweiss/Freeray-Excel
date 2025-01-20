@@ -13,7 +13,7 @@
 
     <br><br>
 
-    <img style="width: 250px; margin: auto; display: block;" src="../images/Screenshot 2024-12-05 155457.png"/>
+    <img style="width: 250px; margin: auto; display: block;" src="./images/Screenshot 2024-12-05 155457.png"/>
 
 
     <div id="loadingIndicator" style=" display:none; text-align:center;">
@@ -347,7 +347,29 @@ document.getElementById('upload2').addEventListener('change', function(e){
         const workbook = XLSX.read(data, { type: 'binary' } );
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName]
-        table2Data = XLSX.utils.sheet_to_json(sheet);
+
+        let rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        let firstRow = rawData[0] || [];
+        let secondRow = rawData[1] || [];
+
+        const isFirstRowEmty = firstRow.every(cell => cell === '' || cell == null);
+
+        let headers = isFirstRowEmty ? secondRow : firstRow;
+
+        headers = headers.map(header => (header ? header.trim() : ''));
+
+        let dataRows = rawData.slice(isFirstRowEmty ? 2 : 1);
+
+        table2Data = dataRows.map(row => {
+            let rowData = {};
+            headers.forEach((header, index) => {
+                rowData[header] = row[index];
+            });
+
+            return rowData;
+        })
+
 
        if(table2Data.length > 0){
         const headers = Object.keys(table2Data[0]);
