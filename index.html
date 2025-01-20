@@ -35,7 +35,7 @@
 
     <button id="save" class="btn btn-primary p-3 m-5">Save Roster Updated File</button>
 
-    <div class="m-5"><label class="text-center">Date of Billed: </label> <input type="date" id="datePicker"/></div>
+    <div class="m-5"><label class="text-center">Date of Report: </label> <input type="date" id="datePicker"/></div>
 
     </div>
 
@@ -325,7 +325,7 @@ document.getElementById('datePicker').addEventListener('change', function (e) {
         const [year,month, day] = selectedDate.split('-');
         const formattedDate = `${month}/${day}/${year}`;
         table2Data.forEach(row => {
-            row["Date of Billed"] = formattedDate; // Update the "Date of Billed" for each row
+            row["Date of Report"] = formattedDate; // Update the "Date of Billed" for each row
         });
         renderTable('excelData2', table2Data); // Re-render table 2 with new "Date of Billed"
     }
