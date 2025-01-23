@@ -135,76 +135,83 @@
             return new Promise(resolve => setTimeout(resolve, ms))
         }
 
+        // below checks if table1data and table2data name and date_of_service match if it 
+        // does the Paid column from table1data is going into table2 data table 
 
-       async function updatePaidAmountsAsync() {
 
-        document.getElementById('loadingIndicator').style.display = 'block';
+        async function updatePaidAmountsAsync() {
+    document.getElementById('loadingIndicator').style.display = 'block';
 
-        let updatedCount = 0;
-        const totalRows = table2Data.length;
-        let unmatchedRows =0;
+    let updatedCount = 0;
+    const totalRows = table2Data.length;
+    let unmatchedRows = 0;
 
-        const seenNameAndDates = new Set()
+    const seenNameAndDates = new Set(); // Tracks Name-Date pairs in table2Data
 
-        for (let i = 0; i < table2Data.length; i++){
-            const row2 = table2Data[i];
-            let matchFound = false;
+    // Step 1: Process table2Data to update Paid and Remarks fields
+    for (let i = 0; i < table2Data.length; i++) {
+        const row2 = table2Data[i];
+        let matchFound = false;
 
-            const nameAndDateKey = `${row2.Name?.toLowerCase().trim()}-${row2['Date of Service']}`;
-            if(seenNameAndDates.has(nameAndDateKey))
+        // Create a unique key for Name-Date combination
+        const nameAndDateKey = `${row2.Name?.toLowerCase().trim()}-${row2['Date of Service']}`;
+        seenNameAndDates.add(nameAndDateKey);
 
-            console.log(nameAndDateKey)
-
-            for (const row1 of table1Data){
-                if (
-                    row1.Name?.toLowerCase().trim() === row2.Name?.toLowerCase().trim() &&
-                    row1["Date of Service"] === row2["Date of Service"]
-                ){
-                    row2.Paid = row1.Paid;
-                    matchFound = true;
-                    updatedCount++; 
-                    break;
-                }
-            }
-
-            if(!matchFound){
-                row2.Paid = 'Not Found = Billing';
-                unmatchedRows++;
-
-                if (!row2.hasOwnProperty("Remarks")) {
-                    row2["Remarks"] = 'Not Found In Billing Table';
-                }else{
-                    row2["Remarks"] += '; Not Found In Billing Table';
-                }
-            }
-
-            if(i % 500 === 0){
-                
-                renderTable('excelData2', table2Data);
-               
-                await sleep(1000);
-                document.getElementById('loadingIndicator').style.display = 'block';
+        for (const row1 of table1Data) {
+            if (
+                row1.Name?.toLowerCase().trim() === row2.Name?.toLowerCase().trim() &&
+                row1["Date of Service"] === row2["Date of Service"]
+            ) {
+                // Update Paid field in table2Data if a match is found
+                row2.Paid = row1.Paid;
+                matchFound = true;
+                updatedCount++;
+                break;
             }
         }
 
-        let totalUpdatedRows = updatedCount + unmatchedRows;
+        if (!matchFound) {
+            row2.Paid = 'Not Found = Billing';
+            unmatchedRows++;
 
-        
+            if (!row2.hasOwnProperty("Remarks")) {
+                row2["Remarks"] = 'Not Found In Billing Table';
+            } else {
+                row2["Remarks"] += '; Not Found In Billing Table';
+            }
+        }
 
-
-                if(totalUpdatedRows ===  totalRows){
-
-
-        document.getElementById('loadingIndicator').style.display = 'none';
-
+        if (i % 500 === 0) {
+            // Periodically render table to avoid freezing the UI
+            renderTable('excelData2', table2Data);
+            await sleep(1000); // Pause to prevent browser from freezing
+            document.getElementById('loadingIndicator').style.display = 'block';
+        }
     }
 
-                renderTable('excelData2', table2Data);
-               
-           
+    // Step 2: Identify unmatched rows in table1Data
+    const unmatchedTable1Rows = [];
+    for (const row1 of table1Data) {
+        const nameAndDateKey = `${row1.Name?.toLowerCase().trim()}-${row1['Date of Service']}`;
 
-               
-            }
+        if (!seenNameAndDates.has(nameAndDateKey)) {
+            // Add row to unmatched rows if no match is found in table2Data
+            unmatchedTable1Rows.push({
+                ...row1, // Keep all fields from table1Data
+                Remarks: 'Added from Table1Data', // Add custom remark
+            });
+        }
+    }
+
+    // Step 3: Append unmatched rows to table2Data
+    table2Data.push(...unmatchedTable1Rows);
+
+    // Step 4: Final rendering
+    document.getElementById('loadingIndicator').style.display = 'none';
+    renderTable('excelData2', table2Data);
+}
+
+
         
         
        
