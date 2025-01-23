@@ -57,10 +57,10 @@
     </div>
 
     
-    <div class="m-5" style="display: inline-block; width: 40%; vertical-align: top; vertical-align: top;  max-height: 85vh; overflow-y: auto; border: 1px solid #020202;">
+    <div class="m-5" style="display: inline-block; width: 40%; vertical-align: top; vertical-align: top;  max-height: 85vh; overflow-y: auto; border: 1px solid #020202; overflow-x: scroll;">
         
         <input type="file" id="upload2"/>
-        <table id="excelData2" style="width: 100%;"></table>
+        <table id="excelData2" style="min-width: 120%;"></table>
         </div>
 
     </div>
@@ -189,7 +189,22 @@
         }
     }
 
-    // Step 2: Identify unmatched rows in table1Data
+    // Step 2: Check for duplicate rows in table1Data
+    const duplicateKeys = new Set(); // To track duplicate Name-Date pairs
+    const table1SeenKeys = new Set(); // Tracks Name-Date pairs specific to table1Data
+
+    table1Data.forEach((row1, index) => {
+        const nameAndDateKey = `${row1.Name?.toLowerCase().trim()}-${row1['Date of Service']}`;
+
+        if (table1SeenKeys.has(nameAndDateKey)) {
+            console.log(`Duplicate found in table1Data at index ${index}:`, row1);
+            duplicateKeys.add(nameAndDateKey);
+        } else {
+            table1SeenKeys.add(nameAndDateKey);
+        }
+    });
+
+    // Step 3: Identify unmatched rows in table1Data
     const unmatchedTable1Rows = [];
     for (const row1 of table1Data) {
         const nameAndDateKey = `${row1.Name?.toLowerCase().trim()}-${row1['Date of Service']}`;
@@ -197,21 +212,20 @@
         if (!seenNameAndDates.has(nameAndDateKey)) {
             // Add row to unmatched rows if no match is found in table2Data
             unmatchedTable1Rows.push({
-                ...row1, // Keep all fields from table1Data
-                Remarks: 'Added from Table1Data', // Add custom remark
+                ...row1,
+                Paid: 'Not Found in Existing Data',
+                Remarks: 'Added from Table1Data',
             });
         }
     }
 
-    // Step 3: Append unmatched rows to table2Data
+    // Step 4: Append unmatched rows to table2Data
     table2Data.push(...unmatchedTable1Rows);
 
-    // Step 4: Final rendering
+    // Step 5: Final rendering
     document.getElementById('loadingIndicator').style.display = 'none';
     renderTable('excelData2', table2Data);
 }
-
-
         
         
        
@@ -414,6 +428,11 @@ document.getElementById('upload2').addEventListener('change', function(e){
 
 
         document.getElementById('save').addEventListener('click', function () {
+            if(!selectedDate){
+                alert('Please Pick A Date of Report To Proceed');
+                return;
+            }
+
             if (table2Data.length === 0) {
                 alert("No data available to save.");
                 return;
