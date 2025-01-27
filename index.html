@@ -40,6 +40,15 @@
     <div class="m-5"><label class="text-center">Date of Report: </label> <input type="date" id="datePicker"/></div>
 
     </div>
+<div style="color: red; width: 450px; margin: auto;">
+    <p><b>Please note before submitting files:</b></p>
+    <ul>
+        <li>Date of Service</li>
+        <li>Patient  Name = Name</li>
+        <li>First row not be empty</li>
+        <li>Only one insurance header</li>
+    </ul>
+    </div>
 
     <div class="d-flex justify-content-around">
         <i><h1>Billed File:</h1></i>
@@ -143,6 +152,7 @@
 
     let updatedCount = 0;
     const unmatchedRows = [];
+    let unmatchedRowsAdded = false
     const totalRows = table2Data.length;
     const seenNameAndDates = new Set();
 
@@ -156,7 +166,7 @@
         return;
     }
 
-    console.log('Yankee Weiss')
+  
 
     for (let i = 0; i < table2Data.length; i++) {
         const row2 = table2Data[i];
@@ -181,13 +191,9 @@
         if (!matchFound) {
             row2.Paid = 'Not Found in Billing File';
             row2['Billed Insurance'] = 'Not Specified';
-            unmatchedRows.push({
-                ...row2,
-                Remarks: row2.Remarks
-                    ? `${row2.Remarks}; Not Found In Billing Table`
-                    : 'Not Found In Billing Table',
-            });
-        }
+            
+            }
+        
 
         if (i % 500 === 0) {
             // Periodically render table to avoid freezing the UI
@@ -197,30 +203,44 @@
         }
     }
 
-    // Process unmatched rows in table1Data
-    const unmatchedTable1Rows = [];
-    for (const row1 of table1Data) {
+    for (const row1 of table1Data){
         const nameAndDateKey = `${row1.Name?.toLowerCase().trim()}-${row1['Date of Service']}`;
 
-        if (!seenNameAndDates.has(nameAndDateKey)) {
-            unmatchedTable1Rows.push({
-                ...row1,
-                Paid: row1.Paid,
-                'Billed Insurance': row1[insuranceHeader] || 'No Insurance Info',
-                Remarks: 'Added from Table1Data',
-            });
-        }
-    }
+    if(!seenNameAndDates.has(nameAndDateKey)){
+        const newRow ={
+        Name : row1.Name,
+        'Date of Service': row1['Date of Service'],
+        Paid: row1.Paid,
+        'Billed Insurance': row1[insuranceHeader] || 'Not Found', 
+        };
 
-    // Optionally merge unmatchedTable1Rows into table2Data or process further
-    table2Data.push(...unmatchedTable1Rows);
+        unmatchedRows.push(newRow)
+    }
+}
+
+if (unmatchedRows.length > 0) {
+        for (const unmatchedRow of unmatchedRows) {
+            table2Data.push(unmatchedRow); // Add the unmatched rows to the end of table2Data
+        }
+        renderTable('excelData2', table2Data); // Re-render the table with the new data
+
+        // Optionally, apply red text color via inline style or CSS class
+        const tableRows = document.querySelectorAll('#excelData2 tr');
+        tableRows.forEach(row => {
+            if (row.contains(document.createTextNode('Not Found In Billing Table'))) {
+                row.style.color = 'red'; // Apply red text color
+            }
+        });
+    
+
+    
+    
     document.getElementById('loadingIndicator').style.display = 'none';
     renderTable('excelData2', table2Data);
-    document.getElementById('loadingIndicator').style.display = 'none';
-
     console.log(`Update Complete. ${updatedCount} rows updated.`);
-    console.log(`Unmatched Rows from Table1Data:`, unmatchedTable1Rows.length);
-    console.log(`Unmatched Rows in Table2Data:`, unmatchedRows.length);
+    console.log(`Rows in Table2data that did not match the name and Date of Service in table1data (${unmatchedRows.length}):`, unmatchedRows);
+
+}
 }
        
         
