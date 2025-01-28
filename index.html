@@ -155,7 +155,7 @@
         // below checks if table1data and table2data name and date_of_service match if it 
         // does the Paid column from table1data is going into table2 data table 
 
-        async function updatePaidAmountsAsync() {
+        /*async function updatePaidAmountsAsync() {
         document.getElementById('loadingIndicator').style.display = 'block';
 
     let updatedCount = 0;
@@ -249,8 +249,86 @@ if (unmatchedRows.length > 0) {
     console.log(`Rows in Table2data that did not match the name and Date of Service in table1data (${unmatchedRows.length}):`, unmatchedRows);
 
 }
+}*/
+
+
+async function updatePaidAmountsAsync() {
+    document.getElementById('loadingIndicator').style.display = 'block';
+
+    let updatedCount = 0;
+    const matchedRows = [];
+    const unmatchedRows = [];
+
+    const insuranceHeader = Object.keys(table1Data[0] || {}).find(header =>
+        header.toLowerCase().includes('insurance')
+    );
+
+    if (!insuranceHeader) {
+        console.error('No Insurance-related column found in table1Data.');
+        document.getElementById('loadingIndicator').style.display = 'none';
+        return;
+    }
+
+    // Step 1: Check if there are matching rows and update table2Data
+    for (let i = 0; i < table2Data.length; i++) {
+        const row2 = table2Data[i];
+        let matchFound = false;
+        const nameAndDateKey = `${row2.Name?.toLowerCase().trim()}-${row2['Date of Service']}`;
+
+        for (const row1 of table1Data) {
+            if (
+                row1.Name?.toLowerCase().trim() === row2.Name?.toLowerCase().trim() &&
+                row1['Date of Service'] === row2['Date of Service']
+            ) {
+                // If a match is found, update the row from table2Data
+                row2.Paid = row1.Paid;
+                row2['Billed Insurance'] = row1[insuranceHeader] || 'Not Found';
+                matchedRows.push(row2); // Add to matched rows
+                matchFound = true;
+                updatedCount++;
+                break;
+            }
+        }
+
+        if (!matchFound) {
+            unmatchedRows.push(row2); // Add to unmatched rows if no match found
+        }
+    }
+
+    // Step 2: Add unmatched rows from table1Data that were not matched in table2Data
+    for (const row1 of table1Data) {
+        const nameAndDateKey = `${row1.Name?.toLowerCase().trim()}-${row1['Date of Service']}`;
+        let matchFound = false;
+
+        for (const row2 of table2Data) {
+            if (row1.Name?.toLowerCase().trim() === row2.Name?.toLowerCase().trim() &&
+                row1['Date of Service'] === row2['Date of Service']) {
+                matchFound = true;
+                break;
+            }
+        }
+
+        if (!matchFound) {
+            const newRow = {
+                Name: row1.Name,
+                'Date of Service': row1['Date of Service'],
+                Paid: row1.Paid,
+                'Billed Insurance': row1[insuranceHeader] || 'Not Found',
+            };
+            unmatchedRows.push(newRow); // Add unmatched rows from table1Data
+        }
+    }
+
+    // Step 3: Combine matched and unmatched rows - matched rows first
+    const combinedRows = [...matchedRows, ...unmatchedRows];
+
+    // Step 4: Re-render the table with the new combined rows
+    renderTable('excelData2', combinedRows);
+
+    document.getElementById('loadingIndicator').style.display = 'none';
+    console.log(`Update Complete. ${updatedCount} rows updated.`);
 }
-       
+
         
        
     function excelDateToJSDate (serial) {
@@ -305,7 +383,7 @@ if (unmatchedRows.length > 0) {
             tableHTML += '<tr>';
             headers.forEach(header => {
                 let cellValue = row[header];
-                if (header.toLocaleLowerCase().includes('date') && isSerialDate(cellValue)){
+                if (header.toLocaleLowerCase().includes('date of service') && isSerialDate(cellValue)){
                     cellValue = excelDateToJSDate(cellValue)
                 }
                 
@@ -375,7 +453,7 @@ document.getElementById('datePicker').addEventListener('change', function (e) {
         const formattedDate = `${month}/${day}/${year}`;
 
         // Update column header for Paid based on selected date
-        const paidHeader = `Paid - ${formattedDate}`;
+        const paidHeader = `Date of Report - ${formattedDate}`;
         table2Data.forEach(row => {
             if (row.Paid !== undefined) {
                 row[paidHeader] = row.Paid; // Add the Paid amount under the new column name, including 0 values
