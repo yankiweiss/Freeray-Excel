@@ -199,7 +199,7 @@
                 row1.Name?.toLowerCase().trim() === row2.Name?.toLowerCase().trim() &&
                 row1['Date of Service'] === row2['Date of Service']
             ) {
-                row2.Paid = row1.Paid;
+                row2.Paid = `$${row1.Paid}`;
                 row2['Billed Insurance'] = row1[insuranceHeader] || 'Not Found';
                 matchFound = true;
                 updatedCount++;
@@ -222,18 +222,31 @@
         }
     }
 
+    const seenTable1Data = new Map(); // For tracking duplicates in table1Data
+    for (const row1 of table1Data) {
+        const nameAndDateKey = `${row1.Name?.toLowerCase().trim()}-${row1['Date of Service']}`;
+
+        if (seenTable1Data.has(nameAndDateKey)) {
+            console.log('Duplicate row found in table1Data:', row1);
+        } else {
+            seenTable1Data.set(nameAndDateKey, row1);
+        }
+    }
+
     for (const row1 of table1Data){
         const nameAndDateKey = `${row1.Name?.toLowerCase().trim()}-${row1['Date of Service']}`;
 
-    if(!seenNameAndDates.has(nameAndDateKey)){
-        const newRow ={
-        Name : row1.Name,
-        'Date of Service': row1['Date of Service'],
-        Paid: row1.Paid,
-        'Billed Insurance': row1[insuranceHeader] || 'Not Found', 
+        if (seenNameAndDates.has(nameAndDateKey)) {
+        console.log('Duplicate row found in table1Data:', row1);
+    } else {
+        const newRow = {
+            Name: row1.Name,
+            'Date of Service': row1['Date of Service'],
+            Paid: row1.Paid,
+            'Billed Insurance': row1[insuranceHeader] || 'Not Found',
         };
 
-        unmatchedRows.push(newRow)
+        unmatchedRows.push(newRow);
     }
 }
 
