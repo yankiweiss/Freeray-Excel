@@ -53,6 +53,13 @@ function uplaodFiles(event, tableId) {
           textDisapear("Please Check if Correct File has been Uploaded", "red");
           return;
         }
+
+        if(allHeaders.some(header => header.toLowerCase().trim() === 'date')){
+            headers = headers.map(row => ({
+               ...row,
+                date: parseExcelDate(row.date)
+            }))
+        }
         table1data = dataRows.map((row) => {
           let rowData = {};
           headers.forEach((header, index) => {
@@ -61,9 +68,6 @@ function uplaodFiles(event, tableId) {
           return rowData;
         });
 
-        //createTable('table1data', table1data)
-
-        // Need to Render the Table1Data in the HTML Page
         isBillingTableProcessed = true;
         textDisapear(
           "Billing Data Sucseesfuly Proceseed!<br>Please uplaod Roster File",
@@ -114,34 +118,32 @@ function uplaodFiles(event, tableId) {
           });
           return rowData;
         });
-
-        populateRoster(table1data, table2data);
-        textDisapear(
-          "Roster Data has been Sucssesfuly Uploaded, <br>Please hang on while we return the data",
-          "green"
-        );
       };
       reader.readAsBinaryString(file);
+      updaitPaidInRoster(table1data, table2data)
     }
   } else {
     console.log("No file was upalod", tableId);
   }
 }
 
-function populateRoster(table1data, table2data) {
-  let matchCount = 0;
-  let matchedNames = [];
+document.getElementById('populateBtn').addEventListener('click',function (){
+    updaitPaidInRoster(table1data, table2data)
+});
 
+function updaitPaidInRoster(table1data, table2data) {
+  let matchCount = 0;
+ 
   for (let i = 0; i < table2data.length; i++) {
     const row2 = table2data[i];
     for (let j = 0; j < table1data.length; j++) {
       const row1 = table1data[j];
 
-      if (row2.Name?.toLowerCase().trim() === row1.Name?.toLowerCase().trim()) {
-        matchedNames.push(row2.Name);
+      if (row2.Name?.toLowerCase().trim() === row1.Name?.toLowerCase().trim() ) {
+        row2['Paid'] = row1.Paid;
         matchCount++;
         break;
-      }
+      } 
     }
   }
 }
@@ -184,3 +186,66 @@ function createTable(tableId, data) {
 
   table.appendChild(tabelHeadings);
 }
+
+// search input Function
+
+
+async function searchNames (event){
+    if (table1data.length < 1 || table2data.length < 1){
+        textDisapear('Please upload both Files First', 'red')
+    } else {(event.key === 'Enter')
+    const query = event.target.value.toLowerCase().trim();
+    filterTables(query)
+    }
+}
+
+async function filterTables (query){
+    const filterRow = (row) => {
+        return Object.values(row).some(
+            (value) => 
+                value && value.toString().toLowerCase().includes(query)
+        )
+    }
+
+    const billingResponse =  await Promise.all(
+        table1data.map( async (row) => (await filterRow(row) ? row : null))
+    )
+
+    const rosterResponse = await Promise.all(
+        table2data.map( async (row) => (await filterRow(row) ? row : null))
+    )
+
+    const cleanTable1 = billingResponse.filter((row) => row !== null);
+    const cleanTable2 = rosterResponse.filter((row) => row !== null);
+
+    createTable('showBillingData', cleanTable1);
+    createTable('showRosterData', cleanTable2);
+
+}
+
+function parseExcelDate(input) {
+    if(!isNaN(input) && Number(input) > 0){
+        return excelSerialToDate(Number(input))
+    }
+
+    let parsedDate = new Date(input);
+    if(!isNaN(parsedDate)){
+        return  formatDate(parsedDate)
+    }
+
+}
+
+function excelSerialToDate(serial){
+    let excelEpotch = new Date(1899, 11, 30)
+    let date = new Date (excelEpotch.getTime() + serial * 86400000)
+    return formatDate(date)
+}
+
+function formatDate(date){
+    let month = String(date.getMonth() + 1).padStart(2, "0");
+    let day = String(date.getDate()).padStart(2, '0');
+    let year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+}
+
+

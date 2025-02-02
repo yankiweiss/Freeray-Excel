@@ -27,18 +27,32 @@
 </div>
 
 
-    <p style="font-size: 30px; height: 125px; text-align: center; text-shadow: 2px 3px #d3c9c9" id="userOutput"></p>
+    <p style="font-size: 30px; height: 100px; text-align: center; text-shadow: 2px 3px #d3c9c9" id="userOutput"></p>
 
-    <div class="btn-group d-flex justify-content-center" role="group" aria-label="Basic example">
-    <button type="button" class="btn btn-outline-primary" onclick="createTable('showBillingData', table1data)">Show Billing Table</button>
-    <button type="button" class="btn btn-outline-primary" onclick="createTable('showRosterData', table2data);">Show Roster Table</button>
+    <div class="d-flex justify-content-center">
+    <div>
+
+    <label for="serchInput" class="form-label text-center fs-4">Search Names:</label>
+    <input class="form-control" id="serchInput" style="width: 400px;" onkeypress="searchNames(event)">
+    </div>
+    </div>
+    <button id="populateBtn">Populate</button>
+    
+
+    <br><br><br>
+
+   <div class="btn-group d-flex justify-content-center" role="group" aria-label="Basic example">
+    <button type="button" class="btn btn-outline-primary" onclick="createTable('showBillingData', table1data)">Show Billing File.</button>
+    <button type="button" class="btn btn-outline-primary" onclick="createTable('showRosterData', table2data);">Show "UPDATED" Roster File.</button>
     </div>
 
+   
 
-    <div class="d-flex">
-    <table id="showBillingData" style="width: 200px;" class="table"></table>
-    <table id="showRosterData" style="width: 200px;" class="table"></table>
+    <div style="display: flex; ">
+    <table id="showBillingData" class="table" style="max-width: 100px; overflow-x: hidden; margin: 10px;"></table>
+    <table id="showRosterData"  class="table" style="max-width: 500px; max-height: 500px; margin: 10px;" ></table>
     </div>
+    
 
     <script src="function.js"></script>
     
