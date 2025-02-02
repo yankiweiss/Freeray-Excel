@@ -87,7 +87,7 @@
 
         error.textContent = 'Error'
 
-        let table1Data = [];
+        
         let table2Data = [];
 
 
@@ -152,6 +152,8 @@
             return new Promise(resolve => setTimeout(resolve, ms))
         }
 
+    
+
         // below checks if table1data and table2data name and date_of_service match if it 
         // does the Paid column from table1data is going into table2 data table 
 
@@ -168,6 +170,8 @@
     const insuranceHeader = Object.keys(table1Data[0] || {}).find(header =>
         header.toLowerCase().includes('insurance')
     );
+
+    
 
     if (!insuranceHeader) {
         console.error('No Insurance-related column found in table1Data.');
@@ -423,6 +427,7 @@ function renderTableWithStyles(tableId, data) {
         headers = headers.map(header => header.trim())
 
         let dataRows = rawData.slice(isFirstRowEmty ? 2 : 1);
+       
 
         table1Data = dataRows.map(row => {
             let rowData = {};
@@ -430,8 +435,12 @@ function renderTableWithStyles(tableId, data) {
                 rowData[header] = row[index];
             });
             return rowData;
+            console.log(table1Data)
         });
 
+        console.log(table1Data)
+        console.log(Object.keys(table1Data[0]))
+        
         renderTable('excelData', table1Data)
     };
             
@@ -473,9 +482,6 @@ function sleep(ms) {
 document.getElementById('upload2').addEventListener('change', function(e){
     const file = e.target.files[0];
     const reader = new FileReader();
-
-    
-
 
     reader.onload = function (event) {
         const data = event.target.result;
