@@ -30,12 +30,15 @@
     <p style="font-size: 30px; height: 125px; text-align: center; text-shadow: 2px 3px #d3c9c9" id="userOutput"></p>
 
     <div class="btn-group d-flex justify-content-center" role="group" aria-label="Basic example">
-    <button type="button" class="btn btn-outline-primary" id="showBilling" onclick="createTable('showBillingData', table1data)">Show Billing Table</button>
-    <button type="button" class="btn btn-outline-primary" onclick="createTable('showRosterData', table2data)">Show Roster Table</button>
+    <button type="button" class="btn btn-outline-primary" onclick="createTable('showBillingData', table1data)">Show Billing Table</button>
+    <button type="button" class="btn btn-outline-primary" onclick="createTable('showRosterData', table2data);">Show Roster Table</button>
     </div>
 
-    <table id="showBillingData"></table>
-    <table id="showRosterData"></table>
+
+    <div class="d-flex">
+    <table id="showBillingData" style="width: 200px;" class="table"></table>
+    <table id="showRosterData" style="width: 200px;" class="table"></table>
+    </div>
 
     <script src="function.js"></script>
     
