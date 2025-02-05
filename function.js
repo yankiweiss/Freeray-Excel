@@ -148,6 +148,11 @@ function uplaodFiles(event, tableId) {
               
           
         }
+
+        textDisapear(
+          "Roster File Sucsesfuly Processed <br>Please Click Populate Roster Data to sync all data",
+          "rgba(1, 180, 1, 0.849)"
+        );
       
       reader.readAsBinaryString(file);
       
