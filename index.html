@@ -35,13 +35,18 @@
     <p style="font-size: 30px; height: 100px; text-align: center; text-shadow: 2px 3px #d3c9c9" id="userOutput"></p>
 
     <div class="d-flex justify-content-center">
-    <div>
 
-    <label for="serchInput" class="form-label text-center fs-4">Search Names:</label>
-    <input class="form-control" id="serchInput" style="width: 400px;" onkeypress="searchNames(event)">
+<div>
+    <label  for="serchInput" class="form-control text-center fs-5">Search Names:</label>
     </div>
+    <div>
+    <input class="form-control p-2" id="serchInput" style="width: 400px;" onkeypress="searchNames(event)">
+   </div>
+    <div>
+    <button id="populateBtn" class="btn btn-outline-primary mx-5 p-2" onclick="updatePaidInRoster(table1data, table2data)">Populate Roster Data</button>
+</div>    
     </div>
-    <button id="populateBtn" onclick="updatePaidInRoster(table1data, table2data)">Populate</button>
+    
     
 
     <br><br><br>
