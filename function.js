@@ -318,7 +318,9 @@ async function filterTables (query){
 
     tablePages = {}
     createTable('showBillingData', cleanTable1);
+    console.log(cleanTable1)
     createTable('showRosterData', cleanTable2);
+    console.log(cleanTable2)
 
     
     
@@ -343,7 +345,7 @@ function excelDateToJSDate(serial) {
 
 // Function Save updated Table2data to Excel File.
 
-function exportToExcel(data, fileName) {
+function exportToExcel(data) {
   if (data.length === 0) {
     textDisapear("No data available to export!", "red");
     return;
@@ -361,9 +363,9 @@ function exportToExcel(data, fileName) {
 }
 
 // Example usage: export table2data when clicking a button
-document.getElementById("exportButton").addEventListener("click", function () {
-  exportToExcel(table2data, "Updated_Roster");
-});
+
+  
+
 
 
 
