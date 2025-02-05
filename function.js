@@ -341,7 +341,31 @@ function excelDateToJSDate(serial) {
 }
 
 
-// Save Button from HTML to Excel
+// Function Save updated Table2data to Excel File.
+
+function exportToExcel(data, fileName) {
+  if (data.length === 0) {
+    textDisapear("No data available to export!", "red");
+    return;
+  }
+
+  // Create a worksheet from the data
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // Create a workbook and append the worksheet
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+  // Write the file
+  XLSX.writeFile(workbook, 'Bulk Roster' + ".xlsx");
+}
+
+// Example usage: export table2data when clicking a button
+document.getElementById("exportButton").addEventListener("click", function () {
+  exportToExcel(table2data, "Updated_Roster");
+});
+
+
 
 
 

@@ -14,6 +14,8 @@
 </style>
 <body>
 
+    <!-- Still need to add date of Report, should be added as Paid Header or at next column-->
+
     <br><br><br>
     <img style="width: 250px; margin: auto; display: block;" src="./images/400dpiLogoCropped (1).jpg"/>
     <br><br><br>
@@ -44,6 +46,10 @@
    </div>
     <div>
     <button id="populateBtn" class="btn btn-outline-primary mx-5 p-2" onclick="updatePaidInRoster(table1data, table2data)">Populate Roster Data</button>
+    </div>
+    <div>
+    <button id="saveToExcel" class="btn btn-outline-primary mx-5 p-2" onclick="exportToExcel(table2data)">Save Updated Roster To Excel File</button>
+    </div>
 </div>    
     </div>
     
