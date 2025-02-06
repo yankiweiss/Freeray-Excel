@@ -174,24 +174,20 @@ function uploadFiles(event, fileId) {
 
 const duplicates = []
 
-function updatePaidInRoster(table1data, table2data) { 
+let currentDateOfReport = new Date(document.getElementById('dateOfReport').value);  
+  let formattedDate = currentDateOfReport.toLocaleDateString('en-US')
+
+function updatePaidInRoster(table1data, table2data, dateOfReport) { 
   let paidQueueMap = new Map(); // Stores arrays of available 'Paid' values
   let seen = new Map(); // Tracks occurrences in table2data
   let matchedKeys = new Set(); // Tracks matched rows from table1data
 
-  
-
-  let currentDateOfReport = new Date(document.getElementById('dateOfReport').value);
-
-  let currentDate = document.getElementById('dateOfReport').value;
-  console.log(currentDate)
-
-  if (currentDate === ""){
-    textDisappear('Please enter Date First', 'red')
+  if (!(dateOfReport instanceof Date) || isNaN(dateOfReport)) {
+    dateOfReport = new Date();
   }
 
-  
-  let formattedDate = currentDateOfReport.toLocaleDateString('en-US')
+  let formattedDate = dateOfReport.toLocaleDateString('en-US');
+
 
   let paidColumHeader = `Paid - Date of Report ${formattedDate}`;
 

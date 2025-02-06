@@ -54,13 +54,10 @@
         <label  for="dateOfReport" class="form-control text-center fs-5">Date of Report: </label>
         </div> 
 <div>
-    <input id="dateOfReport" class="form-control p-2" type="date" />
+    <input id="dateOfReport" class="form-control p-2" type="date" onclick="updatePaidInRoster(table1data,table2data)"/>
 </div>
 </div>
 
-<div>
-    <button id="populateBtn" class="btn btn-outline-primary p-2 mx-5" onclick="updatePaidInRoster(table1data, table2data)">Populate Roster Data</button>
-    </div>
 
 <div>
     <button id="saveToExcel" class="btn btn-outline-primary p-2 mx-5" onclick="exportToExcel(table2data)">Save Updated Roster To Excel File</button>
