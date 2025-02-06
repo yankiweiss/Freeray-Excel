@@ -9,7 +9,7 @@
 </head>
 <style>
     table, td, tr, th{
-        border: solid rgb(194, 194, 194) 2px;
+        border: solid rgb(194, 194, 194) 1px;
     }
 </style>
 <body>
@@ -26,12 +26,12 @@
 <div class="d-flex justify-content-center">
         <div class="m-3">
             <label for="billingFile" class="form-label">Please upload Billing File:</label>
-            <input class="form-control" type="file" id="billingFile" accept=".xlsx, .csv" onchange="uplaodFiles(event, 'billingFile')"/>
+            <input class="form-control" type="file" id="billingFile" accept=".xlsx, .csv" onchange="uploadFiles(event, 'billingFile')"/>
     </div>
 
     <div class="m-3">
         <label for="rosterFile" class="form-label">Please Upload Roster File:</label>
-        <input class="form-control" type="file" id="rosterFile" accept=".xlsx, .csv" onchange="uplaodFiles(event, 'rosterFile')"/>
+        <input class="form-control" type="file" id="rosterFile" accept=".xlsx, .csv" onchange="uploadFiles(event, 'rosterFile')"/>
 </div>
 </div>
 
@@ -43,16 +43,28 @@
 <div>
     <label  for="serchInput" class="form-control text-center fs-5">Search Names:</label>
     </div>
+
     <div>
     <input class="form-control p-2" id="serchInput" style="width: 400px;" onkeypress="searchNames(event)">
    </div>
+   
+    
+     <div class="d-flex mx-5">
     <div>
-    <button id="populateBtn" class="btn btn-outline-primary mx-5 p-2" onclick="updatePaidInRoster(table1data, table2data)">Populate Roster Data</button>
+        <label  for="dateOfReport" class="form-control text-center fs-5">Date of Report: </label>
+        </div> 
+<div>
+    <input id="dateOfReport" class="form-control p-2" type="date" />
+</div>
+</div>
+
+<div>
+    <button id="populateBtn" class="btn btn-outline-primary p-2 mx-5" onclick="updatePaidInRoster(table1data, table2data)">Populate Roster Data</button>
     </div>
-    <div>
-    <button id="saveToExcel" class="btn btn-outline-primary mx-5 p-2" onclick="exportToExcel(table2data)">Save Updated Roster To Excel File</button>
+
+<div>
+    <button id="saveToExcel" class="btn btn-outline-primary p-2 mx-5" onclick="exportToExcel(table2data)">Save Updated Roster To Excel File</button>
     </div>
-</div>    
     </div>
     
     

@@ -1,28 +1,30 @@
-function textDisapear(value, cssTxtColor) {
-  let comunicateWithUser = document.getElementById("userOutput");
-  comunicateWithUser.style.display = "block";
-  comunicateWithUser.innerHTML = value;
-  comunicateWithUser.style.color = cssTxtColor;
+function textDisappear(value, cssTxtColor) {
+  let communicateWithUser = document.getElementById("userOutput");
+  communicateWithUser.style.display = "block";
+  communicateWithUser.innerHTML = value;
+  communicateWithUser.style.color = cssTxtColor;
   setTimeout(() => {
-    comunicateWithUser.style.display = "none";
+    communicateWithUser.style.display = "none";
   }, 2500);
 }
+
+
 
 let table1data = [];
 let table2data = [];
 let isBillingTableProcessed = false;
 
-function uplaodFiles(event, tableId) {
-  let currentFileUpload = document.getElementById(tableId);
+function uploadFiles(event, fileId) {
+  let currentFileUpload = document.getElementById(fileId);
 
   if (
     currentFileUpload &&
     currentFileUpload.files &&
     currentFileUpload.files.length > 0
   ) {
-    console.log("Uplaoded file is from table:", tableId);
+    
 
-    if (tableId === "billingFile") {
+    if (fileId === "billingFile") {
       const file = event.target.files[0];
       const reader = new FileReader();
 
@@ -50,14 +52,17 @@ function uplaodFiles(event, tableId) {
         let allHeaders = headers;
 
         if (!allHeaders.includes("Paid")) {
-          textDisapear("Please Check if Correct File has been Uploaded", "red");
+          textDisappear("Please Check if Correct File has been Uploaded", "red");
           return;
         }
 
-    
+        
         table1data = dataRows.map((row) => {
+          // creating a map on table1data 
           let rowData = {};
+          // declaring a Object rowData for later use,
           headers.forEach((header, index) => {
+            // using the headers variable from top and getting the value and index for each header
               let cleanHeader = header.trim().toLowerCase(); // Normalize header
       
               if (cleanHeader.includes("date")) {
@@ -67,21 +72,20 @@ function uplaodFiles(event, tableId) {
                   rowData[header] = row[index];
               }
           });
-      
           return rowData;
       });
 
         isBillingTableProcessed = true;
-        textDisapear(
-          "Billing Data Sucseesfuly Proceseed!<br>Please uplaod Roster File",
+        textDisappear(
+          "Billing Data Successfully Processed!<br>Please upload Roster File",
           "rgba(1, 180, 1, 0.849)"
         );
       };
       reader.readAsBinaryString(file);
-    } else if (tableId === "rosterFile") {
+    } else if (fileId === "rosterFile") {
 
       if (!isBillingTableProcessed) {
-        textDisapear("Please upload the Billing File first", "red");
+        textDisappear("Please upload the Billing File first", "red");
         return;
       }
       const file = event.target.files[0];
@@ -110,7 +114,7 @@ function uplaodFiles(event, tableId) {
 
 
         if (allHeaders.includes("Paid")) {
-          textDisapear("Please Check if Correct File has been Uploaded", "red");
+          textDisappear("Please Check if Correct File has been Uploaded", "red");
           return;
         }
 
@@ -123,6 +127,7 @@ function uplaodFiles(event, tableId) {
       
               if (cleanHeader.includes("date")) {
                 let dateValue = row[index];
+
 
                           // Check if dateValue is in a string format like "Jul 1, 2024"
                           if (dateValue && typeof dateValue === 'string') {
@@ -149,8 +154,8 @@ function uplaodFiles(event, tableId) {
           
         }
 
-        textDisapear(
-          "Roster File Sucsesfuly Processed <br>Please Click Populate Roster Data to sync all data",
+        textDisappear(
+          "Roster File Successfully Processed <br>Please Click Populate Roster Data to sync all data",
           "rgba(1, 180, 1, 0.849)"
         );
       
@@ -158,10 +163,12 @@ function uplaodFiles(event, tableId) {
       
       }
   
-  } else {
-    console.log("No file was upalod", tableId);
-  }
 }
+}
+
+// update all Paid columns in Table 2 Data to be Date of Report when Date is Selected;
+
+
 
 
 
@@ -171,6 +178,22 @@ function updatePaidInRoster(table1data, table2data) {
   let paidQueueMap = new Map(); // Stores arrays of available 'Paid' values
   let seen = new Map(); // Tracks occurrences in table2data
   let matchedKeys = new Set(); // Tracks matched rows from table1data
+
+  
+
+  let currentDateOfReport = new Date(document.getElementById('dateOfReport').value);
+
+  let currentDate = document.getElementById('dateOfReport').value;
+  console.log(currentDate)
+
+  if (currentDate === ""){
+    textDisappear('Please enter Date First', 'red')
+  }
+
+  
+  let formattedDate = currentDateOfReport.toLocaleDateString('en-US')
+
+  let paidColumHeader = `Paid - Date of Report ${formattedDate}`;
 
   // Step 1: Populate queue-based lookup map from table1data
   for (let row of table1data) {
@@ -191,10 +214,10 @@ function updatePaidInRoster(table1data, table2data) {
 
     // Assign Paid from queue if available, otherwise mark as "Not Found"
     if (paidQueueMap.has(key) && paidQueueMap.get(key).length > 0) {
-      row['Paid'] = paidQueueMap.get(key).shift() // Take first available Paid value
+      row[paidColumHeader] = paidQueueMap.get(key).shift() // Take first available Paid value
       matchedKeys.add(key); // Mark as matched
     } else {
-      row['Paid'] = 'Was not found in Billing!';
+      row[paidColumHeader] = 'Was not found in Billing!';
     }
 
     // Track occurrences for duplicate detection
@@ -221,6 +244,8 @@ function updatePaidInRoster(table1data, table2data) {
   }
 
   // Step 4: Add unmatched rows from table1data to table2data
+
+
   
 
   return table2data;
@@ -279,7 +304,7 @@ data.forEach((row) => {
   })
      
   tablePages[tableId]++;
-  console.log(tablePages)
+  
 
   /*let existingBtn = document.getElementById('showNextPageBilling');
 
@@ -298,7 +323,7 @@ async function searchNames (event){
 
 
   if(table1data.length < 1 || table2data.length < 1){
-    textDisapear('Please', 'red')
+    textDisappear('Please', 'red')
     return
   }
     
@@ -352,7 +377,7 @@ function excelDateToJSDate(serial) {
 
 function exportToExcel(data) {
   if (data.length === 0) {
-    textDisapear("No data available to export!", "red");
+    textDisappear("No data available to export!", "red");
     return;
   }
 
