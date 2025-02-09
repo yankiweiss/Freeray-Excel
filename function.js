@@ -1,3 +1,5 @@
+/* need to see how to make that if its being a roster again that the it should create a new Paid column*/
+
 function textDisappear(value, cssTxtColor) {
   let communicateWithUser = document.getElementById("userOutput");
   communicateWithUser.style.display = "block";
@@ -110,13 +112,7 @@ function uploadFiles(event, fileId) {
 
         headers = headers.map((header) => header.trim());
 
-        let allHeaders = headers;
-
-
-        if (allHeaders.includes("Paid")) {
-          textDisappear("Please Check if Correct File has been Uploaded", "red");
-          return;
-        }
+    
 
         let dataRows = rawData.slice(ifFirstRowEmpty ? 2 : 1);
 
@@ -150,12 +146,10 @@ function uploadFiles(event, fileId) {
               
                   return rowData;
               });
-              
-          
         }
 
         textDisappear(
-          "Roster File Successfully Processed <br>Please Click Populate Roster Data to sync all data",
+          "Roster File Successfully Processed <br>Please add a Date of Report to run Comparisons",
           "rgba(1, 180, 1, 0.849)"
         );
       
@@ -174,22 +168,31 @@ function uploadFiles(event, fileId) {
 
 const duplicates = []
 
-let currentDateOfReport = new Date(document.getElementById('dateOfReport').value);  
-  let formattedDate = currentDateOfReport.toLocaleDateString('en-US')
 
-function updatePaidInRoster(table1data, table2data, dateOfReport) { 
+function formatDate(inputDate) {
+  const parts = inputDate.split("-"); // Assuming "YYYY-MM-DD" from input field
+  const date = new Date(parts[0], parts[1] - 1, parts[2]); // Year,ring to Date object
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Get month (0-based index, so add 1)
+  const day = date.getDate().toString().padStart(2, '0'); // Get day
+  const year = date.getFullYear(); // Get year
+
+  return `${month}/${day}/${year}`;
+}
+
+function updatePaidInRoster(table1data, table2data) { 
+
+  let dateEntered = document.getElementById("dateOfReport").value;
+  
+ dateEntered = formatDate(dateEntered)
+  
+
   let paidQueueMap = new Map(); // Stores arrays of available 'Paid' values
   let seen = new Map(); // Tracks occurrences in table2data
   let matchedKeys = new Set(); // Tracks matched rows from table1data
 
-  if (!(dateOfReport instanceof Date) || isNaN(dateOfReport)) {
-    dateOfReport = new Date();
-  }
 
-  let formattedDate = dateOfReport.toLocaleDateString('en-US');
-
-
-  let paidColumHeader = `Paid - Date of Report ${formattedDate}`;
+  let newPaidHeader = `Paid (${dateEntered})`;
+ 
 
   // Step 1: Populate queue-based lookup map from table1data
   for (let row of table1data) {
@@ -204,18 +207,28 @@ function updatePaidInRoster(table1data, table2data, dateOfReport) {
     
   }
 
+  for (let row of table2data) {
+    if (!(newPaidHeader in row)) {
+      row[newPaidHeader] = "Not Processed"; // Ensure the column exists
+    }
+  }
+
+  console.log(table2data)
+
   // Step 2: Update Paid and count occurrences
   for (let row of table2data) {
     let key = `${row.Name?.toLowerCase().trim()}|${row['Date of Service']}`;
 
     // Assign Paid from queue if available, otherwise mark as "Not Found"
+    
+
     if (paidQueueMap.has(key) && paidQueueMap.get(key).length > 0) {
-      row[paidColumHeader] = paidQueueMap.get(key).shift() // Take first available Paid value
-      matchedKeys.add(key); // Mark as matched
+      row[newPaidHeader] = paidQueueMap.get(key).shift();
     } else {
-      row[paidColumHeader] = 'Was not found in Billing!';
+      row[newPaidHeader] = "Not Found In Billing File!";
     }
 
+    matchedKeys.add(key);
     // Track occurrences for duplicate detection
     seen.set(key, (seen.get(key) || 0) + 1);
   }
@@ -227,7 +240,7 @@ function updatePaidInRoster(table1data, table2data, dateOfReport) {
         table2data.push({
           Name: row.Name,
           "Date of Service": row["Date of Service"],
-          Paid: row.Paid
+          [newPaidHeader]: row.Paid
         });
         seen.set(key, (seen.get(key) || 0) + 1)
       }
@@ -237,12 +250,10 @@ function updatePaidInRoster(table1data, table2data, dateOfReport) {
   for (let row of table2data) {
     let key = `${row.Name?.toLowerCase().trim()}|${row['Date of Service']}`;
     row['Duplicate'] = seen.get(key) > 1; // True if more than one occurrence
+   
   }
 
   // Step 4: Add unmatched rows from table1data to table2data
-
-
-  
 
   return table2data;
 }
@@ -254,6 +265,7 @@ let tablePages = {};
 
 
 function createTable(tableId, data) {
+  console.log(table2data)
   if(!tablePages[tableId]){
     tablePages[tableId] = 0;
   }
@@ -371,7 +383,7 @@ function excelDateToJSDate(serial) {
 
 // Function Save updated Table2data to Excel File.
 
-function exportToExcel(data) {
+function exportToCSV(data) {
   if (data.length === 0) {
     textDisappear("No data available to export!", "red");
     return;
@@ -380,13 +392,25 @@ function exportToExcel(data) {
   // Create a worksheet from the data
   const worksheet = XLSX.utils.json_to_sheet(data);
 
-  // Create a workbook and append the worksheet
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+  // Convert the worksheet to CSV format
+  const csv = XLSX.utils.sheet_to_csv(worksheet);
 
-  // Write the file
-  XLSX.writeFile(workbook, 'Bulk Roster' + ".xlsx");
+  // Create a Blob object for CSV content and create a download link
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+
+  // Create a link to trigger the file download
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'Bulk Roster.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }
+
+// Example usage: export table2data when clicking a button
 
 // Example usage: export table2data when clicking a button
 
