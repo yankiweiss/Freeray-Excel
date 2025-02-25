@@ -54,14 +54,15 @@
         <label  for="dateOfReport" class="form-control text-center fs-5">Date of Report: </label>
         </div> 
 <div>
-    <input id="dateOfReport" class="form-control p-2" type="date" onchange="updatePaidInRoster(table1data,table2data)"/>
+    <input id="dateOfReport" class="form-control p-2" type="date" onchange="updatePaidColumnRoster(table1data,table2data)"/>
 </div>
 </div>
 
 
 <div>
     <button id="saveToExcel" class="btn btn-outline-primary p-2 mx-5" onclick="exportToCSV(table2data)">Save Updated Roster To Excel File</button>
-    </div>
+<button class="js-test" onclick="test(table1data, table2data)">Test</button>    
+</div>
     </div>
     
     
@@ -91,7 +92,8 @@
     </div>
 
     
-    <script src="traversa.js"></script>
+    
+    
     <script src="function.js"></script>
     
     
